@@ -133,6 +133,19 @@ VibeStart（vibestart.net）自选技术栈、一条命令生成 TypeScript 全�
 
 Orca 里这两条一行都没有——不是它没想到，是**它压根没这个对象**：它的 spec 是 Agent 的指令，Agent 当然能改自己的指令。你这儿 PRD 是合同，签了不能单方改。
 
+### 清单存在哪：Software Wiki（软件 Wiki）
+
+清单不写死在代码里，也不躺在 PRD 的一段话里——它单独住在一个仓库：
+
+**`Samuelonly/software-wiki`**（公开），分两半：
+
+- **`stacks/`** —— 技术选型库：什么项目该用什么技术。V1 已从 VibeStart 抽取第一批（锁 commit `8565902d`），其余技术块待填。
+- **`checklists/`** —— 品类功能清单：这类软件该有哪些本事。每条一句话能验完，带来源，标"实测 / 文档"。
+
+**为什么单独成库**：清单是跨项目复用的资产，不该跟某个产品的代码绑死。AI 动手前把它读进上下文，把原本不会出现在计划里的隐藏项逼进去——这是它唯一不可替代的作用。
+
+**三条铁律**：条数因品类而异，别凑数；每条带来源；写完找三个做过这类软件的人过一遍，没过评审的标"草稿"，不能当验收依据。
+
 ## 四、界面：一屏「待你处理(N)」，三个按钮
 
 用户永远只看到一个界面，这是全部产品。
@@ -199,6 +212,18 @@ Orca 里这两条一行都没有——不是它没想到，是**它压根没这�
 
 **改**：它的 review 现在是 Agent 判 Agent，要插真人进 loop——这是唯一可能要动它源码的地方。
 
+### OpenSpec（Fission-AI/OpenSpec，MIT）—— checklist 的执行载体
+
+75.5k star，每月 26 万开发者，v2.1.1。流程 `explore → propose → apply-change → verify-change → archive`，核心是「建对的东西 + 建对」——**它验证实现符合 spec**。
+
+**为什么比 PlanWeave 更适合当 checklist 的执行载体**：PlanWeave 的 review gate 只管"计划里的事干完没"，而清单要验的是"原本不在计划里的事做没做全"。OpenSpec 的 spec 是**人可以事先写死的行为描述**（"应用 SHALL 让用户切换明暗主题"这种 Requirement + Scenario 结构），正好是 Software Wiki 里清单条目的落点：把清单喂进 spec，让 Agent 按它实现，再用 `verify-change` 逐条验。加上 75.5k star、30+ 工具兼容、MIT，生态和 longevity 都不是 PlanWeave（447 star）能比。
+
+**拿**：spec 的 Requirement / Scenario 写法（人写、Agent 照做）、`verify-change` 的逐条比对流程。
+
+**不拿**：它不做"这品类该有哪些本事"，也没有"用户拿到手会在哪骂娘"——那半边还是 Software Wiki 的活。它验的是已知 spec 的符合度，不是 spec 的完整性。
+
+**注意**：它的 Stores（把 spec 放独立仓库跨项目共享）还标 beta，官方自己说"shape may change"。别焊死，隔一层。
+
 ### VibeStart（vibestart.net，MIT）—— 地基
 
 **拿**：用它生成 Commander 自己的仓库——build / lint / test 三道门白送，还带指纹。
@@ -221,6 +246,8 @@ Orca 里这两条一行都没有——不是它没想到，是**它压根没这�
 - **VibeStart 造地基** → 仓库自带 vp check/test/build + AGENTS.md
 - **Orca 给内核** → gate 状态机 + worktree + 权限 + checkpoint
 - **PlanWeave 给规则** → 覆盖审、review gate、PRD 导计划包
+- **OpenSpec 给验法** → spec 写死"该有什么本事"，`verify-change` 逐条比对
+- **Software Wiki 存清单** → 品类 checklist 的独立库，跨项目复用，喂进 OpenSpec 的 spec
 - **Commander 写三层** → 42 条基线 + 人话翻译 + 一屏三按钮
 - **ACP/MCP 给握手** → 指挥 Agent、接授权回调
 - **IM 通道 给人** → 递单、收拇指、留痕
